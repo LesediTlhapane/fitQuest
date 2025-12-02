@@ -40,4 +40,10 @@ class FirebaseService {
     final snapshot = await _db.collection("runs").get();
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
+
+  currentUser() {}
+
+  Future<void> login(String email, String password) async {}
+
+  Future<void> logout() async {}
 }

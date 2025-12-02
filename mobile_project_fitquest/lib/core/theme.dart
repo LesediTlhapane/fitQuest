@@ -5,7 +5,7 @@ final ThemeData fitQuestTheme = ThemeData(
     seedColor: Colors.blueAccent,
     brightness: Brightness.light,
   ),
-  scaffoldBackgroundColor: Colors.grey[50],
+  scaffoldBackgroundColor: const Color.fromARGB(255, 177, 90, 90),
   useMaterial3: true,
   fontFamily: 'SF Pro Display',
 );

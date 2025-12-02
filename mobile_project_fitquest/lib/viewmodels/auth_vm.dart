@@ -2,25 +2,44 @@ import 'package:flutter/material.dart';
 import '../services/firebase_service.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  final FirebaseService _firebase = FirebaseService();
+  final FirebaseService service;
+  AuthViewModel(this.service) {
+    _checkUser();
+  }
 
-  bool isLoading = false;
-  String? error;
+  bool isLoggedIn = false;
+  String? errorMessage;
 
-  AuthViewModel(FirebaseService firebaseService);
-
-  Future<void> loginAnonymous() async {
-    isLoading = true;
+  void _checkUser() {
+    isLoggedIn = service.currentUser() != null;
     notifyListeners();
+  }
 
+  Future<void> login(String email, String password) async {
+    errorMessage = null;
     try {
-      await _firebase.signInAnonymously();
-      error = null;
+      await service.login(email, password);
+      isLoggedIn = true;
     } catch (e) {
-      error = e.toString();
+      errorMessage = e.toString();
     }
+    notifyListeners();
+  }
 
-    isLoading = false;
+  Future<void> signup(String email, String password) async {
+    errorMessage = null;
+    try {
+      await service.signUp(email, password);
+    } catch (e) {
+      errorMessage = e.toString();
+    }
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    await service.logout();
+    isLoggedIn = false;
     notifyListeners();
   }
 }
+
