@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "327076334604",
+    "project_id": "mobile-project-fitquest-2ffef",
+    "storage_bucket": "mobile-project-fitquest-2ffef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327076334604:android:bbc171da3aee02a350b229",
+        "android_client_info": {
+          "package_name": "com.example.mobile_project_fitquest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsx0uyDleUPijPHDmMIGWqsunSnQZZ9ig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
