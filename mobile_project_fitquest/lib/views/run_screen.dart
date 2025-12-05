@@ -18,11 +18,11 @@ class RunScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 24),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text(
                       'Run',
                       style:
@@ -33,7 +33,7 @@ class RunScreen extends StatelessWidget {
                 ),
               ),
 
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: Text(
                     'Map view goes here\n(Google Maps, Mapbox, or Leaflet)',

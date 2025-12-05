@@ -22,7 +22,7 @@ class LoginFailedScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Color(0xFFB0413E),
+                      color: const Color(0xFFB0413E),
                       width: 6,
                     ),
                   ),
@@ -75,7 +75,7 @@ class LoginFailedScreen extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF3B4D79),
+                      backgroundColor: const Color(0xFF3B4D79),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

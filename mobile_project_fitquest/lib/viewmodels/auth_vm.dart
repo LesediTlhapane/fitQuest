@@ -3,37 +3,43 @@ import '../services/firebase_service.dart';
 
 class AuthViewModel extends ChangeNotifier {
   final FirebaseService service;
+
+  bool isLoggedIn = false;
+  bool loading = true;
+
   AuthViewModel(this.service) {
     _checkUser();
   }
 
-  bool isLoggedIn = false;
-  String? errorMessage;
+  get errorMessage => null;
 
-  void _checkUser() {
-    isLoggedIn = service.currentUser() != null;
+  Future<void> _checkUser() async {
+    final user = service.currentUser();
+    isLoggedIn = user != null;
+    loading = false;
     notifyListeners();
   }
 
-  Future<void> login(String email, String password) async {
-    errorMessage = null;
+  Future<String?> login(String email, String password) async {
     try {
-      await service.login(email, password);
+      await service.signIn(email, password);
       isLoggedIn = true;
+      notifyListeners();
+      return null;
     } catch (e) {
-      errorMessage = e.toString();
+      return e.toString();
     }
-    notifyListeners();
   }
 
-  Future<void> signup(String email, String password) async {
-    errorMessage = null;
+  Future<String?> register(String email, String password) async {
     try {
-      await service.signUp(email, password);
+      await service.register(email, password);
+      isLoggedIn = true;
+      notifyListeners();
+      return null;
     } catch (e) {
-      errorMessage = e.toString();
+      return e.toString();
     }
-    notifyListeners();
   }
 
   Future<void> logout() async {
@@ -41,5 +47,6 @@ class AuthViewModel extends ChangeNotifier {
     isLoggedIn = false;
     notifyListeners();
   }
-}
 
+  Future<void> signup(String trim, String trim2) async {}
+}
