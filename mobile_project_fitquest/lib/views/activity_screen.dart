@@ -1,33 +1,48 @@
 import 'package:flutter/material.dart';
-import '../services/firebase_service.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/auth_vm.dart';
+import 'fitquest_app.dart';
 
 class ActivityScreen extends StatelessWidget {
-  final FirebaseService service = FirebaseService();
-
-  ActivityScreen({super.key});
+  const ActivityScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthViewModel>(context, listen: false);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Activity")),
-      body: FutureBuilder(
-        future: service.fetchRuns(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-
-          final runs = snapshot.data as List<Map<String, dynamic>>;
-
-          return ListView.builder(
-            itemCount: runs.length,
-            itemBuilder: (context, i) {
-              final run = runs[i];
-              return ListTile(
-                title: Text("Distance: ${run['distance']} km"),
-                subtitle: Text("Duration: ${run['duration']} min"),
-              );
-            },
-          );
-        },
+      appBar: AppBar(
+        title: const Text("Activity"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async => await auth.logout(),
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Activity Screen", style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Go to Home tab
+                FitQuestApp.fitQuestKey.currentState?.setCurrentIndex(0);
+              },
+              child: const Text("Back to Home"),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                // Go to Plans tab
+                FitQuestApp.fitQuestKey.currentState?.setCurrentIndex(1);
+              },
+              child: const Text("Go to Plans"),
+            ),
+          ],
+        ),
       ),
     );
   }

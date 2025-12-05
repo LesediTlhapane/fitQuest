@@ -12,10 +12,16 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   Future<void> _checkUser() async {
-    final user = service.currentUser();
-    isLoggedIn = user != null;
-    loading = false;
-    notifyListeners();
+    try {
+      final user = service.currentUser();
+      isLoggedIn = user != null;
+    } catch (e) {
+      print('Check user error: $e');
+      isLoggedIn = false;
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
   }
 
   Future<String?> login(String email, String password) async {
@@ -25,6 +31,7 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
       return null;
     } catch (e) {
+      print('Login error: $e');
       return e.toString();
     }
   }
@@ -36,13 +43,19 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
       return null;
     } catch (e) {
+      print('Register error: $e');
       return e.toString();
     }
   }
 
   Future<void> logout() async {
-    await service.logout();
-    isLoggedIn = false;
-    notifyListeners();
+    try {
+      await service.logout();
+    } catch (e) {
+      print('Logout error: $e');
+    } finally {
+      isLoggedIn = false;
+      notifyListeners();
+    }
   }
 }

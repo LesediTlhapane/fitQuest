@@ -1,25 +1,43 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitquest/firebase_options.dart';
+import 'firebase_options.dart' hide DefaultFirebaseOptions;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+
 class FirebaseService {
-  dynamic currentUser() {
-    // return null if not logged in, or a dummy user object
-    return null;
+  FirebaseAuth? _auth;
+
+  FirebaseService() {
+    _initialize();
   }
 
-  Future<void> signIn(String email, String password) async {
-    // Simulate login
-    await Future.delayed(const Duration(seconds: 1));
-    if (email != "test@test.com" || password != "123456") {
-      throw Exception("Invalid credentials");
+  Future<void> _initialize() async {
+    // Only initialize once
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
     }
+    _auth = FirebaseAuth.instance;
   }
 
+  // Get current user
+  User? currentUser() {
+    return _auth?.currentUser;
+  }
+
+  // Sign in with email & password
+  Future<void> signIn(String email, String password) async {
+    await _auth?.signInWithEmailAndPassword(email: email, password: password);
+  }
+
+  // Register new user
   Future<void> register(String email, String password) async {
-    // Simulate registration
-    await Future.delayed(const Duration(seconds: 1));
+    await _auth?.createUserWithEmailAndPassword(email: email, password: password);
   }
 
+  // Logout
   Future<void> logout() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await _auth?.signOut();
   }
-
-  Future<Object?>? fetchRuns() async {}
 }

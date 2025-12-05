@@ -9,6 +9,8 @@ import 'activity_screen.dart';
 import 'login_screen.dart';
 
 class FitQuestApp extends StatefulWidget {
+  static var fitQuestKey;
+
   const FitQuestApp({super.key});
 
   @override
@@ -18,19 +20,19 @@ class FitQuestApp extends StatefulWidget {
 class _FitQuestAppState extends State<FitQuestApp> {
   int _currentIndex = 0;
 
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    PlansScreen(),
+    RunScreen(),
+    ClubScreen(),
+    ActivityScreen(),
+  ];
+
   void setCurrentIndex(int index) {
     setState(() {
       _currentIndex = index;
     });
   }
-
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const PlansScreen(),
-    const RunScreen(),
-    ClubScreen(),
-    ActivityScreen(),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -47,14 +49,11 @@ class _FitQuestAppState extends State<FitQuestApp> {
         }
 
         return Scaffold(
-          body: IndexedStack(
-            index: _currentIndex,
-            children: _screens,
-          ),
+          body: IndexedStack(index: _currentIndex, children: _screens),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
             type: BottomNavigationBarType.fixed,
-            onTap: (index) => setCurrentIndex(index),
+            onTap: setCurrentIndex,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
               BottomNavigationBarItem(icon: Icon(Icons.list), label: "Plans"),
