@@ -1,53 +1,36 @@
+import 'package:fitquest/views/signup_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:provider/provider.dart';
+import 'viewmodels/auth_vm.dart';
+import 'services/firebase_service.dart';
+import 'views/fitquest_app.dart';
 
-// Import your screens
-import 'views/home_screen.dart';
-import 'views/plans_screen.dart';
-import 'views/run_screen.dart';
-import 'views/club_screen.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    print('Firebase initialized successfully');
-  } catch (e) {
-    print('Firebase initialization error: $e');
-  }
-
-  runApp(FitQuestApp());
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AuthViewModel(FirebaseService()),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
-class FitQuestApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      // Your initial/home screen
-      home: HomeScreen(),
-
-      // Named routes for navigation
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const FitQuestApp(),
       routes: {
-        '/home': (context) => HomeScreen(),
-        '/plans': (context) => PlansScreen(),
-        '/run': (context) => RunScreen(),
-        '/club': (context) => ClubScreen(),
-        // Add any other screens here
+        '/signup': (_) => const SignUpScreen(),
       },
-
-      // Optional: handle unknown routes gracefully
-      onUnknownRoute: (settings) => MaterialPageRoute(
-        builder: (context) => HomeScreen(),
-      ),
     );
   }
 }

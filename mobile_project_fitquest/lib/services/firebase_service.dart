@@ -1,21 +1,25 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
 class FirebaseService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  User? currentUser() => _auth.currentUser;
-
-  Future<void> signIn(String email, String password) {
-    return _auth.signInWithEmailAndPassword(email: email, password: password);
-  }
-
-  Future<void> register(String email, String password) {
-    return _auth.createUserWithEmailAndPassword(email: email, password: password);
-  }
-
-  Future<void> logout() => _auth.signOut();
-
-  Future<Object?>? fetchRuns() async {
+  dynamic currentUser() {
+    // return null if not logged in, or a dummy user object
     return null;
   }
+
+  Future<void> signIn(String email, String password) async {
+    // Simulate login
+    await Future.delayed(const Duration(seconds: 1));
+    if (email != "test@test.com" || password != "123456") {
+      throw Exception("Invalid credentials");
+    }
+  }
+
+  Future<void> register(String email, String password) async {
+    // Simulate registration
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  Future<void> logout() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  Future<Object?>? fetchRuns() async {}
 }

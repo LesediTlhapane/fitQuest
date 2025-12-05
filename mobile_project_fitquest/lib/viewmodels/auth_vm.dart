@@ -11,8 +11,6 @@ class AuthViewModel extends ChangeNotifier {
     _checkUser();
   }
 
-  get errorMessage => null;
-
   Future<void> _checkUser() async {
     final user = service.currentUser();
     isLoggedIn = user != null;
@@ -47,6 +45,4 @@ class AuthViewModel extends ChangeNotifier {
     isLoggedIn = false;
     notifyListeners();
   }
-
-  Future<void> signup(String trim, String trim2) async {}
 }
