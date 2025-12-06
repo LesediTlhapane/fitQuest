@@ -1,3 +1,4 @@
+// lib/widgets/home_card.dart
 import 'package:flutter/material.dart';
 
 class HomeCard extends StatelessWidget {
@@ -19,11 +20,11 @@ class HomeCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.only(bottom: 18),
+        padding: const EdgeInsets.all(18),
         height: 110,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(18),
           gradient: LinearGradient(
             colors: gradient,
             begin: Alignment.topLeft,
@@ -31,24 +32,32 @@ class HomeCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: gradient.last.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 6),
-            )
+              color: gradient.last.withOpacity(0.25),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
           ],
         ),
         child: Row(
           children: [
-            Icon(icon, size: 40, color: Colors.white),
-            const SizedBox(width: 20),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 26,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: Colors.white, size: 34),
+            ),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                    fontSize: 22, color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
+            const Icon(Icons.chevron_right, color: Colors.white70)
           ],
         ),
       ),

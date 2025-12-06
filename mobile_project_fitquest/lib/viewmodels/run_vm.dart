@@ -1,63 +1,66 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 
 class RunViewModel extends ChangeNotifier {
-  bool isRunning = false;
-  double distanceMeters = 0.0;
-  int seconds = 0;
+int _seconds = 0;
+int get seconds => _seconds;
 
-  Timer? _timer;
-  Timer? _simLocationTimer;
+double _distanceMeters = 0;
+double get distanceMeters => _distanceMeters;
 
-  void startRun({bool simulate = false}) {
-    if (isRunning) return;
+/// In case UI expects `.distance`
+double get distance => _distanceMeters.toDouble();
 
-    isRunning = true;
-    notifyListeners();
+bool _isRunning = false;
+bool get isRunning => _isRunning;
 
-    // timer for seconds
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      seconds++;
-      notifyListeners();
-    });
+List<Position> _routePositions = [];
+List<Position> get routePositions => List.unmodifiable(_routePositions);
 
-    // simulation of movement — 10 meters every 2 seconds
-    if (simulate) {
-      _simLocationTimer = Timer.periodic(const Duration(seconds: 2), (_) {
-        distanceMeters += 10;
-        notifyListeners();
-      });
-    }
-  }
+void startRun() => start();
+void stopRun() => stop();
+void resetRun() => reset();
 
-  Future<void> stopRun() async {
-    if (!isRunning) return;
-
-    isRunning = false;
-
-    _timer?.cancel();
-    _simLocationTimer?.cancel();
-
-    _timer = null;
-    _simLocationTimer = null;
-
-    // Normally you would save the run here
-    // For now it's a stub that does nothing
-
-    notifyListeners();
-  }
-
-  void reset() {
-    isRunning = false;
-    seconds = 0;
-    distanceMeters = 0.0;
-
-    _timer?.cancel();
-    _simLocationTimer?.cancel();
-
-    notifyListeners();
-  }
+void start() {
+_isRunning = true;
+_seconds = 0;
+_distanceMeters = 0;
+_routePositions.clear();
+notifyListeners();
 }
 
+void stop() {
+_isRunning = false;
+notifyListeners();
+}
+
+void reset() {
+_isRunning = false;
+_seconds = 0;
+_distanceMeters = 0;
+_routePositions.clear();
+notifyListeners();
+}
+
+void tick() {
+if (_isRunning) {
+_seconds++;
+notifyListeners();
+}
+}
+
+void addLocation(Position pos) {
+if (_routePositions.isNotEmpty) {
+final last = _routePositions.last;
+final meters = Geolocator.distanceBetween(
+last.latitude,
+last.longitude,
+pos.latitude,
+pos.longitude,
+);
 
 
+  buildRunData(String uid) {}
+
+
+}}}

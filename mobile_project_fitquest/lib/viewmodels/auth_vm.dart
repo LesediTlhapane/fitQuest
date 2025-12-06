@@ -1,61 +1,58 @@
-import 'package:flutter/material.dart';
-import '../services/firebase_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitquest/services/firebase_service.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  final FirebaseService service;
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  bool isLoggedIn = false;
-  bool loading = true;
+User? _user;
+User? get user => _user;
 
-  AuthViewModel(this.service) {
-    _checkUser();
-  }
+bool _loading = false;
+bool get loading => _loading;
 
-  Future<void> _checkUser() async {
-    try {
-      final user = service.currentUser();
-      isLoggedIn = user != null;
-    } catch (e) {
-      print('Check user error: $e');
-      isLoggedIn = false;
-    } finally {
-      loading = false;
-      notifyListeners();
-    }
-  }
+bool get isLoggedIn => _user != null;
 
-  Future<String?> login(String email, String password) async {
-    try {
-      await service.signIn(email, password);
-      isLoggedIn = true;
-      notifyListeners();
-      return null;
-    } catch (e) {
-      print('Login error: $e');
-      return e.toString();
-    }
-  }
+AuthViewModel(FirebaseService firebaseService) {
+_auth.authStateChanges().listen((u) {
+_user = u;
+notifyListeners();
+});
+}
 
-  Future<String?> register(String email, String password) async {
-    try {
-      await service.register(email, password);
-      isLoggedIn = true;
-      notifyListeners();
-      return null;
-    } catch (e) {
-      print('Register error: $e');
-      return e.toString();
-    }
-  }
+Future<String?> login(String email, String password) async {
+try {
+_loading = true;
+notifyListeners();
 
-  Future<void> logout() async {
-    try {
-      await service.logout();
-    } catch (e) {
-      print('Logout error: $e');
-    } finally {
-      isLoggedIn = false;
-      notifyListeners();
-    }
-  }
+await _auth.signInWithEmailAndPassword(email: email, password: password);
+return null;
+} catch (e) {
+return e.toString();
+} finally {
+_loading = false;
+notifyListeners();
+}
+}
+
+Future<String?> signup(String email, String password) async {
+try {
+_loading = true;
+notifyListeners();
+
+await _auth.createUserWithEmailAndPassword(email: email, password: password);
+return null;
+} catch (e) {
+return e.toString();
+} finally {
+_loading = false;
+notifyListeners();
+}
+}
+
+Future<void> logout() async {
+await _auth.signOut();
+}
+
+  Future<dynamic> register(String trim, String trim2) async {}
 }

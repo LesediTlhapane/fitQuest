@@ -28,6 +28,7 @@ dependencies:
 
   # utilities
   uuid: ^4.4.0
+  location: ^8.0.1
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
+// lib/views/plans_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../viewmodels/auth_vm.dart';
+import '../widgets/home_card.dart';
 import 'fitquest_app.dart';
 
 class PlansScreen extends StatelessWidget {
@@ -8,42 +8,46 @@ class PlansScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthViewModel>(context, listen: false);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Plans"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async => await auth.logout(),
-          ),
-        ],
-      ),
-      body: Center(
+      appBar: AppBar(title: const Text('Workouts')),
+      body: Padding(
+        padding: const EdgeInsets.all(18),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Plans Screen", style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Go to Run tab
-                FitQuestApp.fitQuestKey.currentState?.setCurrentIndex(2);
-              },
-              child: const Text("Start Run"),
+            const Text('Choose a workout', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+
+            // sample workouts
+            HomeCard(
+              title: 'Easy 20 min Run',
+              icon: Icons.directions_run,
+              gradient: const [Color(0xFF8AD1FF), Color(0xFF4DA8E9)],
+              onTap: () => FitQuestApp.fitQuestKey.currentState?.setCurrentIndex(2),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                // Go to Club tab
-                FitQuestApp.fitQuestKey.currentState?.setCurrentIndex(3);
-              },
-              child: const Text("Go to Club"),
+
+            HomeCard(
+              title: 'Interval 30 min',
+              icon: Icons.timer,
+              gradient: const [Color(0xFFFFB86B), Color(0xFFFB7C7C)],
+              onTap: () => FitQuestApp.fitQuestKey.currentState?.setCurrentIndex(2),
             ),
+
+            HomeCard(
+              title: 'Gym - Strength 45 min',
+              icon: Icons.fitness_center,
+              gradient: const [Color(0xFFc3a5ff), Color(0xFF7F6BFF)],
+              onTap: () => FitQuestApp.fitQuestKey.currentState?.setCurrentIndex(2),
+            ),
+            const SizedBox(height: 12),
+
+            TextButton(
+              onPressed: () {},
+              child: const Text('Create custom workout'),
+            )
           ],
         ),
       ),
     );
   }
 }
+ 

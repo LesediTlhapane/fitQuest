@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const FitQuestApp(),
+      home: FitQuestApp(),
       routes: {
         '/signup': (_) => const SignUpScreen(),
       },

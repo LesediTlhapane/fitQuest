@@ -1,22 +1,24 @@
+import 'package:fitquest/core/theme.dart';
+import 'package:fitquest/views/activity_screen.dart';
+import 'package:fitquest/views/club_screen.dart';
+import 'package:fitquest/views/home_screen.dart';
+import 'package:fitquest/views/login_failed_screen.dart';
+import 'package:fitquest/views/plans_screen.dart';
+import 'package:fitquest/views/run_screen.dart';
+import 'package:fitquest/views/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'core/theme.dart';
-import 'views/home_screen.dart';
-import 'views/plans_screen.dart';
-import 'views/run_screen.dart';
-import 'views/club_screen.dart';
-import 'views/activity_screen.dart';
-import 'views/login_screen.dart';
-import 'views/signup_screen.dart';
 
-import 'widgets/bottom_nav.dart';
-
-import 'viewmodels/auth_vm.dart';
-import 'viewmodels/run_vm.dart';
-import 'services/firebase_service.dart';
+import '../widgets/bottom_nav.dart';
+import '../viewmodels/auth_vm.dart';
+import '../viewmodels/run_vm.dart';
+import '../services/firebase_service.dart';
 
 class FitQuestApp extends StatefulWidget {
+  static final GlobalKey<_FitQuestAppState> fitQuestKey =
+      GlobalKey<_FitQuestAppState>();
+
   const FitQuestApp({super.key});
 
   @override
@@ -33,16 +35,20 @@ class _FitQuestAppState extends State<FitQuestApp> {
     firebaseService = FirebaseService();
   }
 
+  void setCurrentIndex(int index) {
+    setState(() => _currentIndex = index);
+  }
+
   Widget _mainApp() {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          HomeScreen(),
+          const HomeScreen(),
           const PlansScreen(),
           const RunScreen(),
-          ClubScreen(),
-          ActivityScreen(),
+          const ClubScreen(),
+          const ActivityScreen(),
         ],
       ),
       bottomNavigationBar: FitQuestBottomNav(
