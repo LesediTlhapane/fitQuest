@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 
 class RunScreen extends StatefulWidget {
   const RunScreen({super.key});
@@ -14,11 +17,71 @@ class _RunScreenState extends State<RunScreen> {
   double _distance = 0.0;
   bool _isRunning = false;
   List<Map<String, dynamic>> _runHistory = [];
+  
+  // flutter_map variables
+  final MapController _mapController = MapController();
+  final List<LatLng> _polylineCoordinates = [];
+  LatLng? _currentLocation;
+  bool _locationEnabled = false;
+  
+  // Default location (can be any location)
+  static const LatLng _defaultLocation = LatLng(-26.195246, 28.034088); // Johannesburg
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLocation = _defaultLocation;
+    _checkLocationPermission();
+  }
 
   @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _checkLocationPermission() async {
+    // Check if location service is enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    // Check permission
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse && 
+          permission != LocationPermission.always) {
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    setState(() {
+      _locationEnabled = true;
+    });
+
+    // Get initial location
+    await _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        _mapController.move(_currentLocation!, 15.0);
+      });
+    } catch (e) {
+      print("Error getting location: $e");
+    }
   }
 
   void _startRun() {
@@ -27,16 +90,59 @@ class _RunScreenState extends State<RunScreen> {
         _isRunning = true;
         _seconds = 0;
         _distance = 0.0;
+        _polylineCoordinates.clear();
+        
+        // Add starting point
+        if (_currentLocation != null) {
+          _polylineCoordinates.add(_currentLocation!);
+        }
       });
 
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        setState(() {
-          _seconds++;
-          // Simulate distance - in real app, this would come from GPS
-          _distance += 0.00278; // Approx 10 km/h speed
-        });
+      _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+        if (_isRunning && _locationEnabled) {
+          try {
+            Position position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high,
+            );
+            
+            LatLng newLocation = LatLng(position.latitude, position.longitude);
+            
+            setState(() {
+              _currentLocation = newLocation;
+              _polylineCoordinates.add(newLocation);
+              
+              // Calculate distance
+              if (_polylineCoordinates.length > 1) {
+                _distance = _calculateTotalDistance();
+              }
+              
+              // Center map on new location
+              _mapController.move(newLocation, _mapController.zoom);
+            });
+          } catch (e) {
+            print("Error updating location: $e");
+          }
+        }
+        
+        // Always update seconds
+        if (_isRunning) {
+          setState(() {
+            _seconds++;
+          });
+        }
       });
     }
+  }
+
+  double _calculateTotalDistance() {
+    double totalDistance = 0.0;
+    for (int i = 1; i < _polylineCoordinates.length; i++) {
+      totalDistance += const Distance().distance(
+        _polylineCoordinates[i - 1],
+        _polylineCoordinates[i],
+      );
+    }
+    return totalDistance / 1000; // Convert to kilometers
   }
 
   void _stopRun() {
@@ -49,7 +155,8 @@ class _RunScreenState extends State<RunScreen> {
         'date': DateTime.now(),
         'duration': _seconds,
         'distance': _distance,
-        'pace': _seconds / (_distance * 60),
+        'pace': _distance > 0 ? (_seconds / 60) / _distance : 0,
+        'path': List<LatLng>.from(_polylineCoordinates),
       });
     });
   }
@@ -60,6 +167,9 @@ class _RunScreenState extends State<RunScreen> {
       _seconds = 0;
       _distance = 0.0;
       _timer?.cancel();
+      _polylineCoordinates.clear();
+      _currentLocation = _defaultLocation;
+      _mapController.move(_defaultLocation, 13.0);
     });
   }
 
@@ -102,7 +212,7 @@ class _RunScreenState extends State<RunScreen> {
                       children: [
                         _buildStatCard('TIME', _formatTime(_seconds), Icons.timer),
                         _buildStatCard('DISTANCE', '${_distance.toStringAsFixed(2)} km', Icons.directions_run),
-                        _buildStatCard('PACE', _distance > 0 ? '${(_seconds / (_distance * 60)).toStringAsFixed(2)} min/km' : '0:00', Icons.speed),
+                        _buildStatCard('PACE', _distance > 0 ? '${((_seconds / 60) / _distance).toStringAsFixed(2)} min/km' : '0:00', Icons.speed),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -139,33 +249,73 @@ class _RunScreenState extends State<RunScreen> {
             ),
             const SizedBox(height: 20),
             
-            // Map Placeholder
+            // Map Card with flutter_map
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Container(
-                height: 200,
+                height: 300,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.map, size: 60, color: Colors.grey),
-                      SizedBox(height: 10),
-                      Text(
-                        'Live Run Tracking',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      Text('Map will display your route here'),
-                    ],
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: _buildMap(),
                 ),
               ),
             ),
+            
+            // Location Status
+            if (!_locationEnabled)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Card(
+                  color: Colors.orange[50],
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_off, color: Colors.orange, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Location Access',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Enable location for accurate tracking',
+                                style: TextStyle(fontSize: 10),
+                              ),
+                              const SizedBox(height: 6),
+                              ElevatedButton(
+                                onPressed: _checkLocationPermission,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  minimumSize: const Size(0, 0),
+                                ),
+                                child: const Text(
+                                  'Enable',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
             
             // Run History
@@ -205,8 +355,83 @@ class _RunScreenState extends State<RunScreen> {
       ),
     );
   }
-
-  // FIXED METHOD: Added explicit return
+Widget _buildMap() {
+  return FlutterMap(
+    mapController: _mapController,
+    options: MapOptions(
+      center: _currentLocation ?? _defaultLocation,
+      zoom: 15.0,
+      maxZoom: 18.0,
+      minZoom: 3.0,
+      interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+    ),
+    children: [
+      TileLayer(
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        userAgentPackageName: 'com.example.fitquest',
+        tileProvider: NetworkTileProvider(),
+        retinaMode: MediaQuery.of(context).devicePixelRatio > 1.0,
+      ),
+      PolylineLayer(
+        polylines: [
+          Polyline(
+            points: _polylineCoordinates,
+            color: Colors.blue.withOpacity(0.8),
+            strokeWidth: 4.0,
+          ),
+        ],
+      ),
+      MarkerLayer(
+        markers: [
+          if (_currentLocation != null)
+            Marker(
+              point: _currentLocation!,
+              width: 40,
+              height: 40,
+              child: const Icon(  // FIXED: Changed from 'builder' to 'child'
+                Icons.location_pin,
+                color: Colors.red,
+                size: 40,
+              ),
+            ),
+        ],
+      ),
+      Align(
+        alignment: Alignment.bottomRight,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FloatingActionButton.small(
+                onPressed: () {
+                  if (_currentLocation != null) {
+                    _mapController.move(_currentLocation!, 15.0);
+                  }
+                },
+                child: const Icon(Icons.my_location),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                onPressed: () {
+                  _mapController.move(_mapController.center, _mapController.zoom + 1);
+                },
+                child: const Icon(Icons.add),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                onPressed: () {
+                  _mapController.move(_mapController.center, _mapController.zoom - 1);
+                },
+                child: const Icon(Icons.remove),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
   Widget _buildStatCard(String title, String value, IconData icon) {
     return Column(
       children: [
@@ -230,7 +455,6 @@ class _RunScreenState extends State<RunScreen> {
     );
   }
 
-  // Also fix _buildControlButton if it has the same issue
   Widget _buildControlButton({
     required IconData icon,
     required String label,
@@ -275,6 +499,7 @@ class _RunScreenState extends State<RunScreen> {
     final date = run['date'] as DateTime;
     final duration = run['duration'] as int;
     final distance = run['distance'] as double;
+    final pace = run['pace'] as double;
     
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -284,7 +509,7 @@ class _RunScreenState extends State<RunScreen> {
         subtitle: Text(
           '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')} • '
           '${_formatTime(duration)} • '
-          '${(duration / (distance * 60)).toStringAsFixed(2)} min/km',
+          '${pace.toStringAsFixed(2)} min/km',
         ),
         trailing: Text(
           '${date.day}/${date.month}',

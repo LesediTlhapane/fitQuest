@@ -20,31 +20,35 @@ dependencies:
   # State Management
   provider: ^6.1.1
 
-  # Web-compatible location/map alternatives
-  # Note: google_maps_flutter doesn't work on web, use these instead:
-  # google_maps_flutter_web: ^0.5.4  # If you really need maps on web
-  # OR use a web-compatible map package:
-  flutter_map: ^6.0.0  # For OpenStreetMap (free, no API key needed)
-  latlong2: ^0.9.0  # For flutter_map coordinates
+  # Maps - flutter_map for cross-platform mapping
+  flutter_map: ^6.0.0
+  latlong2: ^0.9.0
   
-  # Web-compatible location (with conditional imports)
+  # Location services - updated versions
   geolocator: ^14.0.2
   permission_handler: ^12.0.1
 
-  # Database - use hive for web (sqflite doesn't work on web)
+  # Database - Hive works on web and mobile
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
-  # Utilities (web compatible)
+  # Utilities
   path: ^1.9.0
   intl: ^0.20.2
-  image_picker: ^1.1.0  # Limited web support
+  image_picker: ^1.1.0
   cached_network_image: ^3.3.0
+  
+  # HTTP for network requests (useful for maps)
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  
+  # For Hive code generation (optional but recommended)
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.6
 
 flutter:
   uses-material-design: true
