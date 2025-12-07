@@ -1,9 +1,9 @@
-// lib/views/home_screen.dart (update the SliverAppBar section)
 import 'package:fitquest/views/activity_screen.dart';
 import 'package:fitquest/views/club_screen.dart';
-import 'package:fitquest/views/profile_screen.dart'; // ADD THIS IMPORT
+import 'package:fitquest/views/profile_screen.dart';
 import 'package:fitquest/views/run_screen.dart';
 import 'package:fitquest/views/stats_screen.dart';
+import 'package:fitquest/views/plans_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -20,15 +20,24 @@ class HomeScreenEnhanced extends StatelessWidget {
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
+      drawer: _buildDrawer(context, auth),
       body: CustomScrollView(
         slivers: [
-          // App Bar with notifications
+          // App Bar with menu icon
           SliverAppBar(
             expandedHeight: 200,
             floating: false,
             pinned: true,
             backgroundColor: Colors.purple,
             foregroundColor: Colors.white,
+            leading: Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'FitQuest',
@@ -100,9 +109,7 @@ class HomeScreenEnhanced extends StatelessWidget {
                 ),
               ),
             ),
-            // ADD THESE ACTIONS
             actions: [
-              // Profile Icon
               IconButton(
                 icon: const Icon(Icons.person_outline),
                 onPressed: () {
@@ -113,7 +120,6 @@ class HomeScreenEnhanced extends StatelessWidget {
                   );
                 },
               ),
-              // Notification Icon
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
                 onPressed: () {
@@ -124,6 +130,12 @@ class HomeScreenEnhanced extends StatelessWidget {
                           title: const Text('Notifications'),
                           backgroundColor: Colors.purple,
                           foregroundColor: Colors.white,
+                          leading: IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
                         ),
                         body: const Center(
                           child: Column(
@@ -162,7 +174,7 @@ class HomeScreenEnhanced extends StatelessWidget {
             ],
           ),
           
-          // ... REST OF YOUR HOMESCREEN CODE (keep all your existing code below)
+          // Stats Overview
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -454,6 +466,195 @@ class HomeScreenEnhanced extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildDrawer(BuildContext context, AuthViewModel auth) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Colors.purple,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person,
+                    size: 40,
+                    color: Colors.purple,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  auth.user?.displayName ?? 'FitQuest User',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  auth.user?.email ?? 'No email',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.home, color: Colors.purple),
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.calendar_today, color: Colors.purple),
+            title: const Text('Workout Plans'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const PlansScreen(),
+                ),
+              );
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.directions_run, color: Colors.purple),
+            title: const Text('Run Tracker'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const RunScreen(),
+                ),
+              );
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.people, color: Colors.purple),
+            title: const Text('Sports Clubs'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ClubsScreen(),
+                ),
+              );
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.analytics, color: Colors.purple),
+            title: const Text('Statistics'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const StatsScreen(),
+                ),
+              );
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.history, color: Colors.purple),
+            title: const Text('Activity History'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ActivityScreen(),
+                ),
+              );
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.purple),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ProfileScreen(),
+                ),
+              );
+            },
+          ),
+          
+          const Divider(),
+          
+          ListTile(
+            leading: const Icon(Icons.settings, color: Colors.grey),
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.help, color: Colors.grey),
+            title: const Text('Help & Support'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              _showLogoutDialog(context, auth);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context, AuthViewModel auth) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCEL'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('LOGOUT'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      await auth.signOut();
+    }
   }
 
   Widget _buildStatItem(String label, String value, IconData icon, Color color) {
