@@ -1,0 +1,68 @@
+name: fitquest
+description: FitQuest - your fitness journey awaits
+publish_to: "none"
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Design
+  flutter_rating_bar: ^4.0.1
+  intl: ^0.19.0
+  
+  # State management
+  provider: ^6.1.2
+
+  # Firebase
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.1.3
+  cloud_firestore: ^5.4.4
+
+  # Local DB
+  sqflite: ^2.3.3
+  path_provider: ^2.1.2
+  path: ^1.9.0
+
+  # Maps & Location
+  geolocator: ^10.1.0
+  google_maps_flutter: ^2.7.1
+  google_maps_flutter_platform_interface: ^2.3.3
+
+  # Utilities
+  uuid: ^4.4.0
+  location: ^8.0.1
+
+  # Animations
+  lottie: ^2.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  
+  # Assets for the app
+  assets:
+    - assets/animations/
+    - assets/images/
+  
+  # Google Maps API key configuration
+  # Add this to your android/app/src/main/AndroidManifest.xml and ios/Runner/Info.plist
+  # For Android: <meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR_API_KEY"/>
+  
+  # Fonts configuration (optional)
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
