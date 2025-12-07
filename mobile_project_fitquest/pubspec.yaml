@@ -2,6 +2,8 @@ name: fitquest
 description: FitQuest - your fitness journey awaits
 publish_to: "none"
 
+version: 1.0.0+1
+
 environment:
   sdk: '>=3.0.0 <4.0.0'
   flutter: ">=3.10.0"
@@ -10,21 +12,43 @@ dependencies:
   flutter:
     sdk: flutter
 
-  provider: ^6.1.2
-  firebase_core: ^3.8.0
-  firebase_auth: ^5.1.3
-  cloud_firestore: ^5.4.4
-  google_maps_flutter: ^2.7.1
-  geolocator: ^10.1.0
-  sqflite: ^2.4.2
+  # Firebase - WEB COMPATIBLE VERSIONS
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
+
+  # State Management
+  provider: ^6.1.1
+
+  # Web-compatible location/map alternatives
+  # Note: google_maps_flutter doesn't work on web, use these instead:
+  # google_maps_flutter_web: ^0.5.4  # If you really need maps on web
+  # OR use a web-compatible map package:
+  flutter_map: ^6.0.0  # For OpenStreetMap (free, no API key needed)
+  latlong2: ^0.9.0  # For flutter_map coordinates
+  
+  # Web-compatible location (with conditional imports)
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
+
+  # Database - use hive for web (sqflite doesn't work on web)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # Utilities (web compatible)
+  path: ^1.9.0
+  intl: ^0.20.2
+  image_picker: ^1.1.0  # Limited web support
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
   
-  # Make sure indentation is exactly 2 spaces
   assets:
+    - assets/images/
     - assets/Image.jpg

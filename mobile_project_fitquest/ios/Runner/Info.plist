@@ -2,10 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Basic app info -->
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>FitQuest</string> <!-- Changed from "Mobile Project Fitquest" -->
+	<string>FitQuest</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +14,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>fitquest</string> <!-- Changed from "mobile_project_fitquest" -->
+	<string>fitquest</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -24,15 +25,25 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	
+	<!-- Flutter setup -->
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	
+	<!-- REQUIRED FOR FLUTTER -->
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+	
+	<!-- Screen orientations -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -41,31 +52,26 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 	
-	<!-- REQUIRED FOR FLUTTER & FIREBASE -->
-	<key>io.flutter.embedded_views_preview</key>
-	<true/>
-	
-	<!-- REQUIRED FOR GOOGLE MAPS -->
+	<!-- LOCATION PERMISSIONS (REQUIRED FOR MAPS & RUN TRACKING) -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs access to your location to track your runs and show your position on the map.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to your location to track your runs even when the app is in the background.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to track your runs even when the app is in the background.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This app needs access to your location to provide accurate run tracking and map display.</string>
 	
-	<!-- Google Maps API Key - Add your actual API key here -->
+	<!-- For background location updates -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+	</array>
+	
+	<!-- Google Maps API Key for iOS -->
 	<!-- Get it from: https://console.cloud.google.com/google/maps-apis/credentials -->
 	<key>com.google.android.geo.API_KEY</key>
 	<string>YOUR_IOS_GOOGLE_MAPS_API_KEY_HERE</string>
-	
-	<!-- Firebase configuration -->
-	<key>FirebaseScreenReportingEnabled</key>
-	<false/>
 	
 	<!-- Camera permission (optional for future features) -->
 	<key>NSCameraUsageDescription</key>
@@ -75,11 +81,40 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to your photo library to upload profile pictures.</string>
 	
-	<!-- For background location updates -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>location</string>
-		<string>fetch</string>
-	</array>
+	<!-- Photo Library Additions permission (iOS 11+) -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs access to your photo library to save workout screenshots.</string>
+	
+	<!-- Microphone permission (optional for future voice features) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses the microphone for voice-guided workouts.</string>
+	
+	<!-- Firebase configuration -->
+	<key>FirebaseScreenReportingEnabled</key>
+	<false/>
+	
+	<!-- Disable App Transport Security (might be needed for Firebase) -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>google.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+			<key>firebaseio.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

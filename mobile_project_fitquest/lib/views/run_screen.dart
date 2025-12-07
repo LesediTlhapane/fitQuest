@@ -206,6 +206,7 @@ class _RunScreenState extends State<RunScreen> {
     );
   }
 
+  // FIXED METHOD: Added explicit return
   Widget _buildStatCard(String title, String value, IconData icon) {
     return Column(
       children: [
@@ -229,6 +230,7 @@ class _RunScreenState extends State<RunScreen> {
     );
   }
 
+  // Also fix _buildControlButton if it has the same issue
   Widget _buildControlButton({
     required IconData icon,
     required String label,

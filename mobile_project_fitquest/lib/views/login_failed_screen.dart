@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       setState(() {
                         loading = false;
-                        error = err;
+                        error = err as String?;
                       });
 
                       if (err == null) {
