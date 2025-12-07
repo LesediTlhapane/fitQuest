@@ -8,7 +8,6 @@ import 'core/theme.dart';
 import 'viewmodels/auth_vm.dart';
 import 'viewmodels/run_vm.dart';
 import 'services/firebase_service.dart';
-import 'fitquest_app.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -3,16 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'viewmodels/auth_vm.dart';
-import 'viewmodels/run_vm.dart'; // Add this import
+import 'viewmodels/run_vm.dart';
 import 'services/auth_service.dart';
 import 'views/welcome_screen.dart';
 import 'views/login_screen.dart';
 import 'views/signup_screen.dart';
-import 'views/home_screen.dart';
+import 'views/main_navigation_screen.dart';
 import 'views/profile_screen.dart';
+import 'views/home_screen.dart';
+import 'views/plans_screen.dart';
 import 'views/run_screen.dart';
 import 'views/club_screen.dart';
-import 'views/activity_screen.dart';
+import 'views/stats_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,15 +29,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   return MultiProvider(
-  providers: [
-    ChangeNotifierProvider(
-      create: (_) => AuthViewModel(AuthService()),
-    ),
-    ChangeNotifierProvider(
-      create: (_) => RunViewModel(), // Make sure this is here
-    ),
-  ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AuthViewModel(AuthService()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RunViewModel(),
+        ),
+      ],
       child: MaterialApp(
         title: 'FitQuest',
         debugShowCheckedModeBanner: false,
@@ -46,13 +48,12 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const AuthWrapper(),
+          '/welcome': (context) => const WelcomeScreen(),
           '/login': (context) => const LoginScreen(),
           '/signup': (context) => const SignUpScreen(),
-          '/home': (context) => const HomeScreen(),
+          '/main': (context) => const MainNavigationScreen(),
           '/profile': (context) => const ProfileScreen(),
-          '/run': (context) => const RunScreen(),
-          '/clubs': (context) => const ClubScreen(),
-          '/activity': (context) => const ActivityScreen(),
+          '/home': (context) => const HomeScreenEnhanced(),
         },
       ),
     );
@@ -75,7 +76,7 @@ class AuthWrapper extends StatelessWidget {
     }
 
     if (auth.isLoggedIn) {
-      return const HomeScreen();
+      return const MainNavigationScreen();
     }
 
     return const WelcomeScreen();

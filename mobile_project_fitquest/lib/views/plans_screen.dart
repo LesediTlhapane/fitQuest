@@ -1,307 +1,367 @@
 import 'package:flutter/material.dart';
-import '../core/theme.dart';
-
 class PlansScreen extends StatelessWidget {
-  final List<WorkoutPlan> workoutPlans = [
-    WorkoutPlan(
-      title: 'Beginner\'s 30-Day Challenge',
-      description: 'Perfect for fitness newcomers',
-      duration: '30 days',
-      difficulty: 2,
-      calories: 1800,
-      icon: Icons.emoji_events_rounded,
-      gradient: [Color(0xFF667EEA), Color(0xFF764BA2)],
-    ),
-    WorkoutPlan(
-      title: 'Marathon Training',
-      description: 'Build endurance for long distances',
-      duration: '12 weeks',
-      difficulty: 4,
-      calories: 3200,
-      icon: Icons.flag_rounded,
-      gradient: [Color(0xFFf093fb), Color(0xFFf5576c)],
-    ),
-    WorkoutPlan(
-      title: 'Strength & Power',
-      description: 'Build muscle and increase strength',
-      duration: '8 weeks',
-      difficulty: 4,
-      calories: 2500,
-      icon: Icons.fitness_center_rounded,
-      gradient: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-    ),
-    WorkoutPlan(
-      title: 'Yoga & Flexibility',
-      description: 'Improve flexibility and reduce stress',
-      duration: 'Daily',
-      difficulty: 1,
-      calories: 800,
-      icon: Icons.self_improvement_rounded,
-      gradient: [Color(0xFF43e97b), Color(0xFF38f9d7)],
-    ),
-    WorkoutPlan(
-      title: 'HIIT Burn',
-      description: 'High intensity fat burning',
-      duration: '4 weeks',
-      difficulty: 5,
-      calories: 2800,
-      icon: Icons.local_fire_department_rounded,
-      gradient: [Color(0xFFfa709a), Color(0xFFfee140)],
-    ),
-  ];
+  const PlansScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 150,
-            floating: true,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Workout Plans',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10,
-                      color: Colors.black26,
-                    ),
-                  ],
-                ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: primaryGradient,
-                ),
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index == 0) {
-                    return _buildHeader();
-                  } else if (index == 1) {
-                    return _buildQuickWorkouts();
-                  } else {
-                    return _buildWorkoutPlanCard(index - 2);
-                  }
-                },
-                childCount: workoutPlans.length + 2,
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: primaryPurple,
+      appBar: AppBar(
+        title: const Text('Workout Plans'),
+        backgroundColor: Colors.purple,
         foregroundColor: Colors.white,
-        icon: Icon(Icons.add_rounded),
-        label: Text('Custom Plan'),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Choose Your Journey',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'Select a plan that matches your fitness goals',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 20),
-      ],
-    );
-  }
-
-  Widget _buildQuickWorkouts() {
-    final quickWorkouts = [
-      {'title': 'Morning Energy', 'time': '20 min', 'icon': Icons.wb_sunny_rounded},
-      {'title': 'Lunch Break', 'time': '15 min', 'icon': Icons.lunch_dining_rounded},
-      {'title': 'Evening Relax', 'time': '30 min', 'icon': Icons.nightlight_rounded},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Quick Workouts',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        SizedBox(height: 12),
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: quickWorkouts.length,
-            itemBuilder: (context, index) {
-              final workout = quickWorkouts[index];
-              return Container(
-                width: 160,
-                margin: EdgeInsets.only(right: 12),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.purple,
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(
+                  colors: [Colors.purple.shade700, Colors.purple.shade400],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today, size: 40, color: Colors.white),
+                  const SizedBox(width: 15),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          workout['icon'] as IconData,
-                          color: primaryPurple,
-                          size: 32,
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          workout['title'] as String,
+                        const Text(
+                          'Your Workout Plans',
                           style: TextStyle(
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 5),
                         Text(
-                          workout['time'] as String,
+                          'Stay consistent with personalized plans',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.9),
                           ),
                         ),
                       ],
                     ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Active Plans
+            const Text(
+              '📋 Active Plans',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Your current workout schedules',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            _buildPlanCard(
+              'Beginner Running Plan',
+              'Start your running journey',
+              '4 weeks • 3 days/week',
+              30,
+              Colors.blue,
+              Icons.directions_run,
+            ),
+            _buildPlanCard(
+              'Strength Building',
+              'Build muscle and strength',
+              '6 weeks • 4 days/week',
+              45,
+              Colors.green,
+              Icons.fitness_center,
+            ),
+            _buildPlanCard(
+              'Yoga for Flexibility',
+              'Improve mobility',
+              '4 weeks • 5 days/week',
+              25,
+              Colors.purple,
+              Icons.self_improvement,
+            ),
+
+            const SizedBox(height: 25),
+
+            // Recommended Plans
+            const Text(
+              '🔥 Recommended Plans',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Based on your activity level',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 15,
+              mainAxisSpacing: 15,
+              children: [
+                _buildQuickPlanCard(
+                  'HIIT Burn',
+                  'High intensity workouts',
+                  Icons.flash_on,
+                  Colors.orange,
                 ),
-              );
-            },
-          ),
+                _buildQuickPlanCard(
+                  'Core Strength',
+                  'Abs and core exercises',
+                  Icons.fitness_center,
+                  Colors.red,
+                ),
+                _buildQuickPlanCard(
+                  'Cardio Boost',
+                  'Improve endurance',
+                  Icons.directions_run,
+                  Colors.blue,
+                ),
+                _buildQuickPlanCard(
+                  'Recovery Week',
+                  'Active recovery plan',
+                  Icons.self_improvement,
+                  Colors.green,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 25),
+
+            // Create New Plan Button
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.purple.withOpacity(0.3)),
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.add_circle_outline, size: 50, color: Colors.purple),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Create Custom Plan',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
+                    'Design your own workout schedule',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigate to create plan screen
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(200, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Start Creating'),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+          ],
         ),
-        SizedBox(height: 24),
-      ],
+      ),
     );
   }
 
-  Widget _buildWorkoutPlanCard(int planIndex) {
-    final plan = workoutPlans[planIndex];
+  Widget _buildPlanCard(
+    String title,
+    String description,
+    String duration,
+    int progress,
+    Color color,
+    IconData icon,
+  ) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 15),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
       ),
-      elevation: 4,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          // Navigate to plan details
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: plan.gradient,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Row(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 32),
             ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Row(
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    duration,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: progress / 100,
+                    backgroundColor: Colors.grey[200],
+                    color: color,
+                    minHeight: 6,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '$progress% complete',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'Continue',
+                          style: TextStyle(color: Colors.purple),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickPlanCard(
+    String title,
+    String description,
+    IconData icon,
+    Color color,
+  ) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: () {
+          // View plan details
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.all(12),
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  plan.icon,
-                  color: Colors.white,
-                  size: 32,
-                ),
+                child: Icon(icon, color: color, size: 28),
               ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      plan.title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      plan.description,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.schedule_rounded, color: Colors.white, size: 16),
-                        SizedBox(width: 4),
-                        Text(
-                          plan.duration,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        SizedBox(width: 16),
-                        Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 16),
-                        SizedBox(width: 4),
-                        Text(
-                          '${plan.calories} cal',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    // Simple difficulty indicator
-                    Row(
-                      children: List.generate(5, (index) {
-                        return Icon(
-                          index < plan.difficulty 
-                            ? Icons.star_rounded 
-                            : Icons.star_border_rounded,
-                          color: Colors.amber,
-                          size: 20,
-                        );
-                      }),
-                    ),
-                  ],
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
+                textAlign: TextAlign.center,
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: Colors.white,
-                size: 32,
+              const SizedBox(height: 5),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: color,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text('Start'),
               ),
             ],
           ),
@@ -309,24 +369,4 @@ class PlansScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class WorkoutPlan {
-  final String title;
-  final String description;
-  final String duration;
-  final int difficulty;
-  final int calories;
-  final IconData icon;
-  final List<Color> gradient;
-
-  WorkoutPlan({
-    required this.title,
-    required this.description,
-    required this.duration,
-    required this.difficulty,
-    required this.calories,
-    required this.icon,
-    required this.gradient,
-  });
 }

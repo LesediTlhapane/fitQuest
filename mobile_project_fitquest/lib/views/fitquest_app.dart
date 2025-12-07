@@ -30,10 +30,10 @@ class _FitQuestAppState extends State<FitQuestApp> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          const HomeScreen(),
+          const HomeScreenEnhanced(),
           PlansScreen(),
           const RunScreen(),
-          ClubScreen(),
+          ClubsScreen(),
           ActivityScreen(),
         ],
       ),

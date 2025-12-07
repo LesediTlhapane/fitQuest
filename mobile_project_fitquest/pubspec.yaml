@@ -40,6 +40,9 @@ dependencies:
   
   # HTTP for network requests (useful for maps)
   http: ^1.1.0
+  share_plus: ^12.0.1
+  mockito: ^5.4.4
+  syncfusion_flutter_charts: ^31.2.16
 
 dev_dependencies:
   flutter_test:

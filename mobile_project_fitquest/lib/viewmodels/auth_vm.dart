@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:latlong2/latlong.dart';
 import '../services/auth_service.dart';
 
 class AuthViewModel with ChangeNotifier {
@@ -62,9 +63,8 @@ class AuthViewModel with ChangeNotifier {
     }
   }
 
-  // Helper method for backward compatibility (optional)
+  // Helper method for backward compatibility
   Future<bool> signupSimple(String email, String password, String name) async {
-    // Split name into first and last name
     final names = name.split(' ');
     final firstName = names.isNotEmpty ? names[0] : '';
     final lastName = names.length > 1 ? names.sublist(1).join(' ') : '';
@@ -74,8 +74,8 @@ class AuthViewModel with ChangeNotifier {
       password: password,
       firstName: firstName,
       lastName: lastName,
-      age: 25, // Default age
-      gender: 'Prefer not to say', // Default gender
+      age: 25,
+      gender: 'Prefer not to say',
     );
   }
 
@@ -114,6 +114,90 @@ class AuthViewModel with ChangeNotifier {
     }
   }
 
+  // New methods for saving data
+  Future<void> saveNotification({
+    required String type,
+    required String title,
+    required String message,
+    Map<String, dynamic>? data,
+  }) async {
+    if (_user == null) return;
+    
+    try {
+      final error = await _authService.saveNotification(
+        uid: _user!.uid,
+        type: type,
+        title: title,
+        message: message,
+        data: data,
+      );
+      
+      if (error != null) {
+        _error = error;
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = 'Failed to save notification: $e';
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveRun({
+    required double distance,
+    required int duration,
+    required double pace,
+    required List<LatLng>? path,
+    required String type,
+  }) async {
+    if (_user == null) return;
+    
+    try {
+      final error = await _authService.saveRun(
+        uid: _user!.uid,
+        distance: distance,
+        duration: duration,
+        pace: pace,
+        path: path,
+        type: type,
+      );
+      
+      if (error != null) {
+        _error = error;
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = 'Failed to save run: $e';
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveWorkout({
+    required String type,
+    required int duration,
+    required int calories,
+    String? notes,
+  }) async {
+    if (_user == null) return;
+    
+    try {
+      final error = await _authService.saveWorkout(
+        uid: _user!.uid,
+        type: type,
+        duration: duration,
+        calories: calories,
+        notes: notes,
+      );
+      
+      if (error != null) {
+        _error = error;
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = 'Failed to save workout: $e';
+      notifyListeners();
+    }
+  }
+
   String _getErrorMessage(String errorCode) {
     switch (errorCode) {
       case 'email-already-in-use':
@@ -137,8 +221,13 @@ class AuthViewModel with ChangeNotifier {
     }
   }
 
-  // Alias for signOut to match both naming conventions
   Future<void> signOut() async {
     await logout();
   }
+
+  Future<void> addUserClub(String clubName) async {}
+
+  Future<void> addUserEvent(String eventName) async {}
+
+  Future<void> addUserChallenge(String challengeName) async {}
 }

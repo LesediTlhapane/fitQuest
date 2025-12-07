@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:latlong2/latlong.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -146,5 +147,122 @@ class AuthService {
 
   Future<void> logout() async {
     await signOut();
+  }
+
+  // New method: Save run to database
+  Future<String?> saveRun({
+    required String uid,
+    required double distance,
+    required int duration,
+    required double pace,
+    required List<LatLng>? path,
+    required String type,
+  }) async {
+    try {
+      final runData = {
+        'uid': uid,
+        'distance': distance,
+        'duration': duration,
+        'pace': pace,
+        'path': path != null ? path.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList() : null,
+        'type': type,
+        'date': DateTime.now(),
+        'calories': (distance * 60).round(), // Rough estimate
+      };
+      
+      await _firestore.collection('runs').add(runData);
+      
+      // Update user stats
+      await _firestore.collection('users').doc(uid).update({
+        'totalDistance': FieldValue.increment(distance),
+        'totalTime': FieldValue.increment(duration),
+        'workoutsCompleted': FieldValue.increment(1),
+        'lastWorkout': DateTime.now(),
+      });
+      
+      return null; // Success
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  // New method: Save workout to database
+  Future<String?> saveWorkout({
+    required String uid,
+    required String type,
+    required int duration,
+    required int calories,
+    String? notes,
+  }) async {
+    try {
+      final workoutData = {
+        'uid': uid,
+        'type': type,
+        'duration': duration,
+        'calories': calories,
+        'notes': notes,
+        'date': DateTime.now(),
+      };
+      
+      await _firestore.collection('workouts').add(workoutData);
+      
+      // Update user stats
+      await _firestore.collection('users').doc(uid).update({
+        'totalTime': FieldValue.increment(duration),
+        'workoutsCompleted': FieldValue.increment(1),
+        'lastWorkout': DateTime.now(),
+      });
+      
+      return null; // Success
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  // New method: Save notification to database
+  Future<String?> saveNotification({
+    required String uid,
+    required String type,
+    required String title,
+    required String message,
+    Map<String, dynamic>? data,
+  }) async {
+    try {
+      await _firestore.collection('notifications').add({
+        'uid': uid,
+        'type': type,
+        'title': title,
+        'message': message,
+        'data': data,
+        'timestamp': DateTime.now(),
+        'read': false,
+      });
+      return null; // Success
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  // Get user notifications
+  Stream<List<Map<String, dynamic>>> getUserNotifications(String uid) {
+    return _firestore
+        .collection('notifications')
+        .where('uid', isEqualTo: uid)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => doc.data()..['id'] = doc.id)
+            .toList());
+  }
+
+  // Mark notification as read
+  Future<void> markNotificationAsRead(String notificationId) async {
+    try {
+      await _firestore.collection('notifications').doc(notificationId).update({
+        'read': true,
+      });
+    } catch (e) {
+      print('Error marking notification as read: $e');
+    }
   }
 }
