@@ -8,10 +8,16 @@ class AuthViewModel with ChangeNotifier {
   User? _user;
   bool _loading = false;
   String _error = '';
+  Map<String, dynamic>? _userProfile;
 
   AuthViewModel(this._authService) {
     _authService.authStateChanges.listen((User? user) {
       _user = user;
+      if (user != null) {
+        _loadUserProfile();
+      } else {
+        _userProfile = null;
+      }
       notifyListeners();
     });
   }
@@ -20,8 +26,14 @@ class AuthViewModel with ChangeNotifier {
   bool get loading => _loading;
   bool get isLoggedIn => _user != null;
   String get error => _error;
+  Map<String, dynamic>? get userProfile => _userProfile;
 
-  Map<String, dynamic>? get userProfile => null;
+  Future<void> _loadUserProfile() async {
+    if (_user != null) {
+      _userProfile = await _authService.getUserProfile(_user!.uid);
+      notifyListeners();
+    }
+  }
 
   Future<bool> signup({
     required String email,
@@ -108,8 +120,126 @@ class AuthViewModel with ChangeNotifier {
   Future<void> logout() async {
     try {
       await _authService.logout();
+      _userProfile = null;
     } catch (e) {
       _error = 'Failed to logout. Please try again.';
+      notifyListeners();
+    }
+  }
+
+  // Club, Event, and Challenge methods
+  Future<void> addUserClub(String clubName) async {
+    if (_user == null) return;
+    
+    try {
+      await _authService.saveNotification(
+        uid: _user!.uid,
+        type: 'club_join',
+        title: 'Club Joined 🏆',
+        message: 'You have successfully joined $clubName! Welcome to the community!',
+        data: {
+          'clubName': clubName,
+          'date': DateTime.now().toIso8601String(),
+          'action': 'view_club',
+        },
+      );
+    } catch (e) {
+      _error = 'Failed to join club: $e';
+      notifyListeners();
+    }
+  }
+
+  Future<void> addUserEvent(String eventName) async {
+    if (_user == null) return;
+    
+    try {
+      await _authService.saveNotification(
+        uid: _user!.uid,
+        type: 'event_rsvp',
+        title: 'RSVP Confirmed ✅',
+        message: 'Your RSVP for $eventName has been confirmed! See you there!',
+        data: {
+          'eventName': eventName,
+          'date': DateTime.now().toIso8601String(),
+          'action': 'view_event',
+        },
+      );
+    } catch (e) {
+      _error = 'Failed to RSVP: $e';
+      notifyListeners();
+    }
+  }
+
+  Future<void> addUserChallenge(String challengeName) async {
+    if (_user == null) return;
+    
+    try {
+      await _authService.saveNotification(
+        uid: _user!.uid,
+        type: 'challenge_join',
+        title: 'Challenge Joined 🚀',
+        message: 'You have joined the $challengeName challenge! Let\'s do this!',
+        data: {
+          'challengeName': challengeName,
+          'date': DateTime.now().toIso8601String(),
+          'action': 'view_challenge',
+        },
+      );
+    } catch (e) {
+      _error = 'Failed to join challenge: $e';
+      notifyListeners();
+    }
+  }
+
+  // Stream for notifications
+  Stream<List<Map<String, dynamic>>> get notificationsStream {
+    if (_user == null) return const Stream.empty();
+    return _authService.getUserNotifications(_user!.uid);
+  }
+
+  // Mark notification as read
+  Future<void> markNotificationAsRead(String notificationId) async {
+    await _authService.markNotificationAsRead(notificationId);
+  }
+
+  // Mark all notifications as read
+  Future<void> markAllNotificationsAsRead() async {
+    if (_user == null) return;
+    
+    try {
+      final notifications = await _authService.getUserNotifications(_user!.uid).first;
+      for (final notification in notifications) {
+        if (notification['read'] == false) {
+          await _authService.markNotificationAsRead(notification['id']);
+        }
+      }
+    } catch (e) {
+      print('Error marking all as read: $e');
+    }
+  }
+
+  // Update user profile
+  Future<void> updateProfile({
+    String? firstName,
+    String? lastName,
+    int? age,
+    String? gender,
+  }) async {
+    if (_user == null) return;
+    
+    try {
+      await _authService.updateUserProfile(
+        uid: _user!.uid,
+        firstName: firstName,
+        lastName: lastName,
+        age: age,
+        gender: gender,
+      );
+      
+      // Reload profile
+      await _loadUserProfile();
+    } catch (e) {
+      _error = 'Failed to update profile: $e';
       notifyListeners();
     }
   }
@@ -224,10 +354,4 @@ class AuthViewModel with ChangeNotifier {
   Future<void> signOut() async {
     await logout();
   }
-
-  Future<void> addUserClub(String clubName) async {}
-
-  Future<void> addUserEvent(String eventName) async {}
-
-  Future<void> addUserChallenge(String challengeName) async {}
 }

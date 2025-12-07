@@ -1,4 +1,3 @@
-// lib/views/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_vm.dart';
@@ -10,6 +9,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthViewModel>(context);
     final user = auth.user;
+    final userProfile = auth.userProfile;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +29,7 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Profile Header
+            // Profile Header with Edit Button
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -75,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user?.displayName ?? 'FitQuest User',
+                          userProfile?['fullName'] ?? user?.displayName ?? 'FitQuest User',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -88,11 +88,23 @@ class ProfileScreen extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),
+                        if (userProfile?['age'] != null) ...[
+                          const SizedBox(height: 5),
+                          Text(
+                            'Age: ${userProfile!['age']}',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                        if (userProfile?['gender'] != null) ...[
+                          const SizedBox(height: 5),
+                          Text(
+                            'Gender: ${userProfile!['gender']}',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        ],
                         const SizedBox(height: 10),
                         ElevatedButton(
-                          onPressed: () {
-                            // Edit profile
-                          },
+                          onPressed: () => _showEditProfileDialog(context, auth, userProfile),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.purple,
                             foregroundColor: Colors.white,
@@ -110,7 +122,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Stats
+            // User Stats
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -138,15 +150,97 @@ class ProfileScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStat('Workouts', '24', Icons.fitness_center),
-                      _buildStat('Distance', '156 km', Icons.directions_run),
-                      _buildStat('Streak', '7 days', Icons.local_fire_department),
+                      _buildStat('Workouts', userProfile?['workoutsCompleted']?.toString() ?? '0', Icons.fitness_center),
+                      _buildStat('Distance', '${(userProfile?['totalDistance'] ?? 0).toStringAsFixed(1)} km', Icons.directions_run),
+                      _buildStat('Time', '${(userProfile?['totalTime'] ?? 0) ~/ 60} hrs', Icons.timer),
                     ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
+
+            // Recent Activity
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Recent Activity',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Icon(Icons.more_horiz, color: Colors.grey),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  _buildActivityItem('Morning Run', '5.2 km • 32 min', 'Today, 7:30 AM', Icons.directions_run, Colors.blue),
+                  _buildActivityItem('Gym Session', 'Strength Training • 45 min', 'Yesterday', Icons.fitness_center, Colors.green),
+                  _buildActivityItem('Evening Yoga', 'Flexibility • 30 min', '2 days ago', Icons.self_improvement, Colors.purple),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Joined Clubs (if any)
+            if (userProfile?['clubs'] != null && (userProfile!['clubs'] as List).isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Joined Clubs',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: (userProfile!['clubs'] as List)
+                          .map<Widget>((club) => Chip(
+                                label: Text(club.toString()),
+                                backgroundColor: Colors.purple.withOpacity(0.1),
+                                labelStyle: const TextStyle(color: Colors.purple),
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
 
             // Logout Button
             Container(
@@ -228,6 +322,150 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActivityItem(String title, String details, String time, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  details,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            time,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showEditProfileDialog(BuildContext context, AuthViewModel auth, Map<String, dynamic>? userProfile) async {
+    final firstNameController = TextEditingController(text: userProfile?['firstName'] ?? '');
+    final lastNameController = TextEditingController(text: userProfile?['lastName'] ?? '');
+    final ageController = TextEditingController(text: userProfile?['age']?.toString() ?? '');
+    String selectedGender = userProfile?['gender'] ?? 'Prefer not to say';
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Edit Profile'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: firstNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'First Name',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: lastNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Last Name',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: ageController,
+                    decoration: const InputDecoration(
+                      labelText: 'Age',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 15),
+                  DropdownButtonFormField<String>(
+                    value: selectedGender,
+                    decoration: const InputDecoration(
+                      labelText: 'Gender',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'Male', child: Text('Male')),
+                      DropdownMenuItem(value: 'Female', child: Text('Female')),
+                      DropdownMenuItem(value: 'Other', child: Text('Other')),
+                      DropdownMenuItem(value: 'Prefer not to say', child: Text('Prefer not to say')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedGender = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('CANCEL'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final age = int.tryParse(ageController.text);
+                  
+                  await auth.updateProfile(
+                    firstName: firstNameController.text.isNotEmpty ? firstNameController.text : null,
+                    lastName: lastNameController.text.isNotEmpty ? lastNameController.text : null,
+                    age: age,
+                    gender: selectedGender,
+                  );
+                  
+                  Navigator.pop(context);
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Profile updated successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                },
+                child: const Text('SAVE'),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 

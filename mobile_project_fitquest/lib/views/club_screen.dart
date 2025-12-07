@@ -59,7 +59,9 @@ class ClubsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Explore all clubs action
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.purple,
@@ -535,8 +537,9 @@ class ClubsScreen extends StatelessWidget {
     if (result == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Successfully joined $clubName!'),
+          content: Text('Successfully joined $clubName! Check your notifications.'),
           backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -574,8 +577,9 @@ class ClubsScreen extends StatelessWidget {
     if (result == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Joined $challengeName challenge!'),
+          content: Text('Joined $challengeName challenge! Check your notifications.'),
           backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -613,8 +617,9 @@ class ClubsScreen extends StatelessWidget {
     if (result == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('RSVP confirmed for $eventName!'),
+          content: Text('RSVP confirmed for $eventName! Check your notifications.'),
           backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
         ),
       );
     }

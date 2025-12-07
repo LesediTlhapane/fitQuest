@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/auth_vm.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthViewModel>(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
@@ -12,97 +21,103 @@ class NotificationsScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () => _markAllAsRead(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _clearAllNotifications(context),
+            icon: const Icon(Icons.done_all), // FIXED: Changed from Icons.check_all
+            onPressed: () async {
+              if (mounted) {
+                await auth.markAllNotificationsAsRead();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('All notifications marked as read'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            tooltip: 'Mark all as read',
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildNotificationSection(
-            'Today',
-            [
-              _buildNotificationItem(
-                'Club Join Request',
-                'Your request to join WTC Running Club has been approved!',
-                Icons.people,
-                Colors.blue,
-                'Just now',
-                true,
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: auth.notificationsStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.red, size: 64),
+                  const SizedBox(height: 16),
+                  Text('Error: ${snapshot.error}'),
+                ],
               ),
-              _buildNotificationItem(
-                'Challenge Accepted',
-                'You joined the 30-Day Code Streak challenge',
-                Icons.emoji_events,
-                Colors.orange,
-                '2 hours ago',
-                true,
+            );
+          }
+          
+          final notifications = snapshot.data ?? [];
+          
+          if (notifications.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.notifications_none, size: 80, color: Colors.grey.withOpacity(0.4)), // Fixed
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No notifications yet',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Join clubs, RSVP to events, or join challenges to see notifications here',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
               ),
+            );
+          }
+          
+          // Group notifications by date
+          final today = DateTime.now();
+          final yesterday = today.subtract(const Duration(days: 1));
+          
+          final todayNotifications = notifications.where((n) {
+            final date = (n['timestamp'] ?? n['createdAt']) as DateTime?;
+            return date != null && date.day == today.day && date.month == today.month && date.year == today.year;
+          }).toList();
+          
+          final yesterdayNotifications = notifications.where((n) {
+            final date = (n['timestamp'] ?? n['createdAt']) as DateTime?;
+            return date != null && date.day == yesterday.day && date.month == yesterday.month && date.year == yesterday.year;
+          }).toList();
+          
+          final olderNotifications = notifications.where((n) {
+            final date = (n['timestamp'] ?? n['createdAt']) as DateTime?;
+            if (date == null) return false;
+            return date.day != today.day || date.month != today.month || date.year != today.year;
+          }).toList();
+          
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (todayNotifications.isNotEmpty)
+                _buildNotificationSection('Today', todayNotifications, auth),
+              if (yesterdayNotifications.isNotEmpty)
+                _buildNotificationSection('Yesterday', yesterdayNotifications, auth),
+              if (olderNotifications.isNotEmpty)
+                _buildNotificationSection('This Week', olderNotifications, auth),
             ],
-          ),
-          const SizedBox(height: 20),
-          _buildNotificationSection(
-            'Yesterday',
-            [
-              _buildNotificationItem(
-                'Event Reminder',
-                'WTC Campus Run starts in 1 hour',
-                Icons.event,
-                Colors.green,
-                'Yesterday',
-                false,
-              ),
-              _buildNotificationItem(
-                'Goal Achievement',
-                'You reached your weekly running goal!',
-                Icons.flag,
-                Colors.purple,
-                'Yesterday',
-                false,
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildNotificationSection(
-            'This Week',
-            [
-              _buildNotificationItem(
-                'New Club Member',
-                'John joined WTC Yoga Coders',
-                Icons.person_add,
-                Colors.teal,
-                '2 days ago',
-                false,
-              ),
-              _buildNotificationItem(
-                'Workout Complete',
-                'Great job on your morning run!',
-                Icons.fitness_center,
-                Colors.red,
-                '3 days ago',
-                false,
-              ),
-              _buildNotificationItem(
-                'RSVP Confirmed',
-                'Your RSVP for Coding Workshop is confirmed',
-                Icons.check_circle,
-                Colors.green,
-                '4 days ago',
-                false,
-              ),
-            ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
-
-  Widget _buildNotificationSection(String title, List<Widget> notifications) {
+  
+  Widget _buildNotificationSection(String title, List<Map<String, dynamic>> notifications, AuthViewModel auth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -115,22 +130,47 @@ class NotificationsScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        ...notifications,
+        ...notifications.map((notification) => _buildNotificationItem(notification, auth)),
       ],
     );
   }
-
-  Widget _buildNotificationItem(
-    String title,
-    String message,
-    IconData icon,
-    Color color,
-    String time,
-    bool unread,
-  ) {
+  
+  Widget _buildNotificationItem(Map<String, dynamic> notification, AuthViewModel auth) {
+    final isRead = notification['read'] == true;
+    final type = notification['type'] ?? '';
+    final title = notification['title'] ?? 'Notification';
+    final message = notification['message'] ?? '';
+    final date = (notification['timestamp'] ?? notification['createdAt']) as DateTime?;
+    
+    // Get icon based on type
+    IconData icon;
+    Color color;
+    
+    switch (type) {
+      case 'club_join':
+        icon = Icons.people;
+        color = Colors.blue;
+        break;
+      case 'event_rsvp':
+        icon = Icons.event;
+        color = Colors.green;
+        break;
+      case 'challenge_join':
+        icon = Icons.emoji_events;
+        color = Colors.orange;
+        break;
+      case 'workout':
+        icon = Icons.fitness_center;
+        color = Colors.red;
+        break;
+      default:
+        icon = Icons.notifications;
+        color = Colors.purple;
+    }
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      color: unread ? Colors.purple.withOpacity(0.05) : null,
+      color: isRead ? null : Colors.purple.withOpacity(0.05),
       child: ListTile(
         leading: Container(
           width: 40,
@@ -144,7 +184,7 @@ class NotificationsScreen extends StatelessWidget {
         title: Text(
           title,
           style: TextStyle(
-            fontWeight: unread ? FontWeight.bold : FontWeight.normal,
+            fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
           ),
         ),
         subtitle: Column(
@@ -154,12 +194,12 @@ class NotificationsScreen extends StatelessWidget {
             Text(message),
             const SizedBox(height: 4),
             Text(
-              time,
+              _formatDate(date ?? DateTime.now()),
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
-        trailing: unread
+        trailing: !isRead
             ? Container(
                 width: 10,
                 height: 10,
@@ -169,73 +209,44 @@ class NotificationsScreen extends StatelessWidget {
                 ),
               )
             : null,
-        onTap: () {
-          // Handle notification tap
-        },
-        onLongPress: () {
-          // Show options
+        onTap: () async {
+          // Mark as read if unread
+          if (!isRead) {
+            await auth.markNotificationAsRead(notification['id']);
+          }
+          
+          // Handle notification action
+          _handleNotificationAction(notification['data']);
         },
       ),
     );
   }
-
-  Future<void> _markAllAsRead(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Mark All as Read'),
-        content: const Text('Mark all notifications as read?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('All notifications marked as read'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            child: const Text('MARK ALL'),
-          ),
-        ],
-      ),
-    );
+  
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    
+    if (difference.inDays == 0) {
+      if (difference.inHours == 0) {
+        if (difference.inMinutes == 0) {
+          return 'Just now';
+        }
+        return '${difference.inMinutes}m ago';
+      }
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    }
+    return '${date.day}/${date.month}/${date.year}';
   }
-
-  Future<void> _clearAllNotifications(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear All Notifications'),
-        content: const Text('Delete all notifications? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('All notifications cleared'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('CLEAR ALL'),
-          ),
-        ],
-      ),
-    );
+  
+  void _handleNotificationAction(Map<String, dynamic>? data) {
+    if (data == null) return;
+    
+    final action = data['action'];
+    // You can add navigation based on action type
+    // For example: Navigator.pushNamed(context, '/club/${data['clubName']}');
   }
 }
