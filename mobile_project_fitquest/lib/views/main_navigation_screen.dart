@@ -5,7 +5,7 @@ import 'package:fitquest/views/plans_screen.dart';
 import 'package:fitquest/views/run_screen.dart';
 import 'package:fitquest/views/club_screen.dart';
 import 'package:fitquest/views/stats_screen.dart';
-import 'package:fitquest/widgets/fitquest_bottom_nav.dart';
+import 'package:fitquest/views/widgets/fitquest_bottom_nav.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});

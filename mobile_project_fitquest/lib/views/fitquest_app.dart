@@ -5,7 +5,7 @@ import 'package:fitquest/views/home_screen.dart';
 import 'package:fitquest/views/login_failed_screen.dart';
 import 'package:fitquest/views/plans_screen.dart';
 import 'package:fitquest/views/run_screen.dart';
-import 'package:fitquest/widgets/bottom_nav.dart';
+import 'package:fitquest/views/widgets/bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-// Simple test without mocks
 void main() {
   test('Basic math test', () {
     expect(1 + 1, equals(2));
